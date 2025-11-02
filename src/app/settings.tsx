@@ -3,7 +3,6 @@ import { HeaderText } from "@/components/HeaderText";
 import { Label } from "@/components/Label";
 import LoadingProgressView from "@/components/LoadingProgressView";
 import { SegmentedButton } from "@/components/SegmentedButton";
-import { SWMLogo } from "@/components/SWMLogo";
 import { colors } from "@/config/colors";
 import { BUILD_TYPE } from "@/config/constants";
 import { scaledPixels } from "@/hooks/useScale";
