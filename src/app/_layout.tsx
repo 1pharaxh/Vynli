@@ -16,6 +16,7 @@ import {
 } from "@react-navigation/native";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { StatusBar } from "expo-status-bar";
 
 /**
  * We call `SplashScreen.hide` in the `index.tsx` file once the app layout is ready.
@@ -46,6 +47,8 @@ export default function RootLayout() {
                 <ThemeProvider
                   value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}
                 >
+                  <StatusBar style={isDarkColorScheme ? "light" : "dark"} />
+
                   <Stack screenOptions={{ headerShown: false }} />
                 </ThemeProvider>
               </GestureHandlerRootView>
