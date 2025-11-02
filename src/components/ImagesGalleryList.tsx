@@ -214,6 +214,7 @@ export const ImagesGalleryList = ({
   >(undefined);
 
   const imagesArr = useMemo(() => {
+    if (cachedPhotosLoadingState !== "COMPLETED") return [];
     return cachedPhotos
       .filter((e) => e.isFavorite)
       .map((e, idx) => {
@@ -227,7 +228,7 @@ export const ImagesGalleryList = ({
           image: e,
         };
       });
-  }, [cachedPhotos, layoutMap, width, headerHeight]);
+  }, [cachedPhotos, layoutMap, width, headerHeight, cachedPhotosLoadingState]);
 
   const gestureHandler = Gesture.Tap().onEnd((e) => {
     const tapX = e.x;
