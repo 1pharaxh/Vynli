@@ -123,7 +123,7 @@ export const useCachedPhotos = () => {
 
         const newCachedPhotosBatch = await Promise.all(
           nextPhotosBatch.map((photo) =>
-            generateCachedPhoto(photo.uri, targetImageSize),
+            generateCachedPhoto(photo.uri, targetImageSize, photo.isFavorite),
           ),
         );
 
@@ -264,10 +264,12 @@ export const useCachedPhotos = () => {
 const generateCachedPhoto = async (
   photoUri: string,
   mipmapWidth: number,
+  isFavorite: boolean,
 ): Promise<CachedPhotoType> => {
   const cached = await getPhotoFromCache({
     originalPhotoUri: photoUri,
     mipmapWidth: mipmapWidth,
+    isFavorite: isFavorite,
   });
   /**
    * Cache hit, early return.
@@ -282,6 +284,7 @@ const generateCachedPhoto = async (
     {
       originalPhotoUri: photoUri,
       mipmapWidth: mipmapWidth,
+      isFavorite,
     },
     result.uri,
   );

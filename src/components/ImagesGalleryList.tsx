@@ -39,6 +39,7 @@ import { runOnJS } from "react-native-worklets";
 import EdgeFade from "./EdgeFade";
 import { Image } from "expo-image";
 import { useColorScheme } from "@/hooks/useColorScheme";
+import { CachedPhotoType } from "@/providers/CachedPhotosProvider/cache-service";
 
 const { width, height } = Dimensions.get("screen");
 const layoutMap: Record<
@@ -59,20 +60,6 @@ const layoutMap: Record<
   11: { x: 0.75, y: 0.87, width: 0.2, height: 0.18, depth: 18 },
 };
 const headerHeight = height / 1.8;
-
-const imagesArr = Array.from({ length: 12 }, (_, idx) => {
-  const layout = layoutMap[idx];
-  const imageFromWeb = `https://picsum.photos/seed/${idx * 5}/3000/2000`;
-
-  return {
-    x: layout.x * width,
-    y: layout.y * headerHeight,
-    depth: layout.depth,
-    width: layout.width * width,
-    height: layout.height * headerHeight,
-    image: imageFromWeb,
-  };
-});
 
 /**
  * Helper definitions - images gallery list props
@@ -213,7 +200,6 @@ export const ImagesGalleryList = ({
     },
     [],
   );
-  const [initialScrollToTop, setInitialScrollToTop] = useState<boolean>(false);
 
   const [selectedImage, setSelectedImage] = useState<
     | {
@@ -222,10 +208,26 @@ export const ImagesGalleryList = ({
         depth: number;
         width: number;
         height: number;
-        image: string;
+        image: CachedPhotoType;
       }
     | undefined
   >(undefined);
+
+  const imagesArr = useMemo(() => {
+    return cachedPhotos
+      .filter((e) => e.isFavorite)
+      .map((e, idx) => {
+        const layout = layoutMap[idx % Object.keys(layoutMap).length];
+        return {
+          x: layout.x * width,
+          y: layout.y * headerHeight,
+          depth: layout.depth,
+          width: layout.width * width,
+          height: layout.height * headerHeight,
+          image: e,
+        };
+      });
+  }, [cachedPhotos, layoutMap, width, headerHeight]);
 
   const gestureHandler = Gesture.Tap().onEnd((e) => {
     const tapX = e.x;
@@ -376,7 +378,6 @@ export const ImagesGalleryList = ({
           keyExtractor={keyExtractor}
           onScroll={handleScroll}
           numColumns={numberOfColumns}
-          estimatedItemSize={properties.singleImageSize}
           contentContainerStyle={{
             paddingLeft: galleryGap,
             paddingTop: headerHeight - 2,
@@ -402,7 +403,6 @@ export const ImagesGalleryList = ({
               </View>
             );
           }}
-          disableAutoLayout={true}
         />
         <EdgeFade position="bottom" width={width} height={100} />
       </Animated.View>
@@ -453,7 +453,7 @@ function GalleryImage({
   width: number;
   height: number;
   depth: number;
-  image: string;
+  image: CachedPhotoType;
   scrollYOffset: SharedValue<number>;
   colorScheme: "dark" | "light";
 }) {
@@ -510,7 +510,7 @@ function GalleryImage({
           backgroundColor: colorScheme === "dark" ? "#000" : "#d1d5db",
           flex: 1,
         }}
-        source={image}
+        source={image.cachedPhotoUri}
         contentFit="cover"
         placeholder={blurhash}
         transition={1000}

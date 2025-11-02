@@ -1,16 +1,17 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { MediaLibraryPhoto } from "../MediaLibraryPhotosProvider/useMediaLibraryPhotos";
-import { Platform } from "react-native";
 
 export type CachedPhotoType = {
   originalPhotoUri: string;
   mipmapWidth: number;
   cachedPhotoUri: string;
+  isFavorite: boolean;
 };
 
 type CacheKey = {
   originalPhotoUri: string;
   mipmapWidth: number;
+  isFavorite: boolean;
 };
 
 const STORAGE_PREFIX = "@photos-cache:";
@@ -36,6 +37,7 @@ export const getPhotoFromCache = async (
     cachedPhotoUri: cachedPhotoUri,
     originalPhotoUri: photoKey.originalPhotoUri,
     mipmapWidth: photoKey.mipmapWidth,
+    isFavorite: photoKey.isFavorite ?? false,
   };
 };
 
@@ -67,13 +69,14 @@ export const loadAllPhotosFromCache = async (
       }
 
       const keyWithoutPrefix = pair[0].replace(STORAGE_PREFIX, "");
-      const { originalPhotoUri, mipmapWidth } =
+      const { originalPhotoUri, mipmapWidth, isFavorite } =
         cacheKeyFromString(keyWithoutPrefix);
 
       return {
         originalPhotoUri,
         mipmapWidth,
         cachedPhotoUri: pair[1],
+        isFavorite: isFavorite ?? false,
       };
     })
     .filter((photo): photo is NonNullable<typeof photo> => photo !== undefined)
@@ -113,14 +116,16 @@ const existsInCache = async (cacheKey: CacheKey) => {
 };
 
 const cacheKeyToString = (cacheKey: CacheKey): string => {
-  return `${cacheKey.originalPhotoUri}--${cacheKey.mipmapWidth.toFixed(2)}`;
+  return `${cacheKey.originalPhotoUri}--${cacheKey.mipmapWidth.toFixed(2)}--${cacheKey.isFavorite ? 1 : 0}`;
 };
 
 const cacheKeyFromString = (photoKeyString: string): CacheKey => {
-  const [originalPhotoUri, mipmapWidth] = photoKeyString.split("--");
+  const [originalPhotoUri, mipmapWidth, favoriteFlag] =
+    photoKeyString.split("--");
   return {
     originalPhotoUri,
     mipmapWidth: Number(parseFloat(mipmapWidth).toFixed(2)),
+    isFavorite: favoriteFlag === "1",
   };
 };
 
@@ -140,5 +145,6 @@ export const setPhotoInCache = async (
     originalPhotoUri: cacheKey.originalPhotoUri,
     mipmapWidth: cacheKey.mipmapWidth,
     cachedPhotoUri: cachedPhotoUri,
+    isFavorite: cacheKey.isFavorite ?? false,
   };
 };

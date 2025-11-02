@@ -25,6 +25,7 @@ export type MediaLibraryPermissionsStatus =
 
 export type MediaLibraryPhoto = {
   uri: string;
+  isFavorite: boolean;
 };
 
 /**
@@ -128,7 +129,17 @@ export const useMediaLibraryPhotos = () => {
             sortBy: [["creationTime", false]],
           });
 
-          const newAssets = batch.assets.map(({ uri }) => ({ uri }));
+          const newAssets = await Promise.all(
+            batch.assets.map(async (asset) => {
+              const { uri, id } = asset;
+              const info = await MediaLibrary.getAssetInfoAsync(id);
+              const isFavorite = info.isFavorite ?? false;
+              logger.mediaLibrary.info(
+                `❤️ is Favorite : ${info.isFavorite}) uri = ${uri}`,
+              );
+              return { uri, isFavorite };
+            }),
+          );
           photos.push(...newAssets);
 
           photosCount = Math.min(MEDIA_LIBRARY_PHOTOS_LIMIT, batch.totalCount);
