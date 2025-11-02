@@ -1,9 +1,13 @@
 import { IS_WIDE_SCREEN } from "@/config/constants";
-import { useCachedPhotos } from "@/providers/CachedPhotosProvider";
+import { useCachedPhotos, Cache } from "@/providers/CachedPhotosProvider";
 import { useGalleryUISettings } from "@/providers/GalleryUISettingsProvider";
 import { useMediaLibraryPhotos } from "@/providers/MediaLibraryPhotosProvider";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Dimensions as d } from "@/providers/ScreenDimensionsProvider";
+import { BlurView } from "expo-blur";
+import { styled } from "nativewind";
+
+const StyledBlurView = styled(BlurView, { className: "style" });
 
 import {
   Dimensions,
@@ -11,11 +15,12 @@ import {
   NativeScrollEvent,
   Text,
   View,
+  ActivityIndicator,
 } from "react-native";
 import { ImageComponent } from "./image/ImageComponent";
 import { NoPhotosMessage } from "./NoPhotosMessage";
 import { EmptyGalleryList } from "./EmptyGalleryList";
-import { SplashScreen } from "expo-router";
+import { Link, SplashScreen } from "expo-router";
 import { FlashList } from "@shopify/flash-list";
 import { getHandle, useFocusRefs } from "@/providers/FocusRefProvider";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
@@ -40,6 +45,7 @@ import EdgeFade from "./EdgeFade";
 import { Image } from "expo-image";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { CachedPhotoType } from "@/providers/CachedPhotosProvider/cache-service";
+import { IconButton } from "./IconButton";
 
 const { width, height } = Dimensions.get("screen");
 const layoutMap: Record<
@@ -351,11 +357,11 @@ export const ImagesGalleryList = ({
                 className="z-50 text-center space-y-4 items-center flex flex-col"
                 entering={textEntering}
               >
-                <Text className="text-base text-black/70 dark:text-white">
+                <Text className="text-base text-black/70 dark:text-white text-center">
                   Recent
                 </Text>
 
-                <Text className="text-5xl md:text-7xl text-black/70 dark:text-white font-calendas italic">
+                <Text className="text-5xl md:text-7xl text-black/70 dark:text-white font-calendas italic text-center">
                   favorites.
                 </Text>
               </Animated.View>
@@ -405,6 +411,43 @@ export const ImagesGalleryList = ({
             );
           }}
         />
+
+        <StyledBlurView
+          className="h-10 w-28 rounded-full absolute top-16 left-5 overflow-hidden flex items-center justify-center z-9999"
+          intensity={60}
+          tint={colorScheme === "light" ? "dark" : "light"}
+        >
+          <Text className="text-base text-center text-white">Your photos</Text>
+        </StyledBlurView>
+
+        <StyledBlurView
+          className="h-10 w-28 rounded-full absolute top-16 right-5 overflow-hidden flex items-end justify-center z-9999 px-2"
+          intensity={60}
+          tint={colorScheme === "light" ? "dark" : "light"}
+        >
+          <View className="flex flex-row items-center justify-center gap-2">
+            <Text className="text-base text-center text-white">
+              {`${cachedPhotos.length} items`}
+            </Text>
+            {!Cache.isLoading(cachedPhotosLoadingState) && ( // Simplified conditional rendering
+              <ActivityIndicator size={"small"} color={"#fff"} />
+            )}
+          </View>
+        </StyledBlurView>
+
+        <StyledBlurView
+          className="h-10 w-10 rounded-full absolute top-16 right-36 overflow-hidden flex items-center justify-center z-9999"
+          intensity={60}
+          tint={colorScheme === "light" ? "dark" : "light"}
+        >
+          <Link href="/settings" asChild>
+            <IconButton
+              iconSource={require("@/assets/images/settings-icon.png")}
+              ref={focusRefs["settings"]}
+            />
+          </Link>
+        </StyledBlurView>
+
         <EdgeFade position="bottom" width={width} height={100} />
       </Animated.View>
     </View>

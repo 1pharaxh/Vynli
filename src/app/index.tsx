@@ -1,8 +1,8 @@
-import { ImagesGalleryContainer } from "@/components/ImagesGalleryContainer";
 import { ImagesGalleryList } from "@/components/ImagesGalleryList";
 import { useGalleryUISettings } from "@/providers/GalleryUISettingsProvider";
 import * as Screen from "@/providers/ScreenDimensionsProvider";
 import React from "react";
+import { View } from "react-native";
 
 export default function PhotosGalleryLayout() {
   const { dimensions, displayMode } = Screen.useScreenDimensions();
@@ -18,7 +18,7 @@ export default function PhotosGalleryLayout() {
 
   // Note that we use different number of columns in landscape mode
   return (
-    <ImagesGalleryContainer title="Your photos">
+    <View className="flex-1  bg-white">
       {displayMode === "PORTRAIT" && (
         <ImagesGalleryList
           dimensions={dimensionsPortait}
@@ -35,6 +35,6 @@ export default function PhotosGalleryLayout() {
           galleryGap={galleryGap}
         />
       )}
-    </ImagesGalleryContainer>
+    </View>
   );
 }
