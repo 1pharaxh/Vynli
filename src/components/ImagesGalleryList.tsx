@@ -421,7 +421,7 @@ export const ImagesGalleryList = ({
         </StyledBlurView>
 
         <StyledBlurView
-          className="h-10 w-28 rounded-full absolute top-16 right-5 overflow-hidden flex items-end justify-center z-9999 px-2"
+          className="h-10 w-auto rounded-full absolute top-16 right-5 overflow-hidden flex items-end justify-center z-9999 px-2"
           intensity={60}
           tint={colorScheme === "light" ? "dark" : "light"}
         >
@@ -429,14 +429,14 @@ export const ImagesGalleryList = ({
             <Text className="text-base text-center text-white">
               {`${cachedPhotos.length} items`}
             </Text>
-            {!Cache.isLoading(cachedPhotosLoadingState) && ( // Simplified conditional rendering
+            {Cache.isLoading(cachedPhotosLoadingState) && ( // Simplified conditional rendering
               <ActivityIndicator size={"small"} color={"#fff"} />
             )}
           </View>
         </StyledBlurView>
 
         <StyledBlurView
-          className="h-10 w-10 rounded-full absolute top-16 right-36 overflow-hidden flex items-center justify-center z-9999"
+          className="h-10 w-10 rounded-full absolute top-16 right-40 overflow-hidden flex items-center justify-center z-9999"
           intensity={60}
           tint={colorScheme === "light" ? "dark" : "light"}
         >
