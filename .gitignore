@@ -53,6 +53,5 @@ android/
 
 # Other
 .env
-*log*
 package-lock.json
 *notes*
