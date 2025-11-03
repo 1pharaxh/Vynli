@@ -11,14 +11,12 @@ export default function PhotosGalleryLayout() {
   // For mobile devices, we want to change UI a little bit after rotation of the screen
   const rotatedDimensions = Screen.rotate(dimensions);
 
-  const dimensionsPortait =
-    displayMode === "PORTRAIT" ? dimensions : rotatedDimensions;
-  const dimensionsLandscape =
-    displayMode === "PORTRAIT" ? rotatedDimensions : dimensions;
+  const dimensionsPortait = displayMode === "PORTRAIT" ? dimensions : rotatedDimensions;
+  const dimensionsLandscape = displayMode === "PORTRAIT" ? rotatedDimensions : dimensions;
 
   // Note that we use different number of columns in landscape mode
   return (
-    <View className="flex-1  bg-white">
+    <View style={{ flex: 1 }}>
       {displayMode === "PORTRAIT" && (
         <ImagesGalleryList
           dimensions={dimensionsPortait}
@@ -29,9 +27,7 @@ export default function PhotosGalleryLayout() {
       {displayMode === "LANDSCAPE" && (
         <ImagesGalleryList
           dimensions={dimensionsLandscape}
-          numberOfColumns={Math.floor(
-            (numberOfColumns * dimensions.width) / dimensions.height,
-          )}
+          numberOfColumns={Math.floor((numberOfColumns * dimensions.width) / dimensions.height)}
           galleryGap={galleryGap}
         />
       )}

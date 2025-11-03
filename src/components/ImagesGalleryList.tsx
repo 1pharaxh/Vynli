@@ -5,12 +5,8 @@ import { useMediaLibraryPhotos } from "@/providers/MediaLibraryPhotosProvider";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Dimensions as d } from "@/providers/ScreenDimensionsProvider";
 import { BlurView } from "expo-blur";
-import { styled } from "nativewind";
 import { LegendList } from "@legendapp/list";
 
-const StyledBlurView = styled(BlurView, { className: "style" });
-const StyledAnimatedView = styled(Animated.View, { className: "style" });
-const StyledImage = styled(Image, { className: "style" });
 import {
   Dimensions,
   NativeSyntheticEvent,
@@ -94,16 +90,14 @@ export const ImagesGalleryList = ({
   const [showTopEdgeFade, setshowTopEdgeFade] = useState(false);
 
   const { cachedPhotos, cachedPhotosLoadingState } = useCachedPhotos();
-  const { mediaLibraryPhotos, mediaLibraryLoadingState } =
-    useMediaLibraryPhotos();
+  const { mediaLibraryPhotos, mediaLibraryLoadingState } = useMediaLibraryPhotos();
   const { offscreenDrawDistanceWindowSize } = useGalleryUISettings();
 
   /**
    * Helper functions - properties calculation
    */
   const calculateSingleImageSize = useCallback(() => {
-    const effectiveWidth =
-      dimensions.width - (numberOfColumns + 1) * galleryGap;
+    const effectiveWidth = dimensions.width - (numberOfColumns + 1) * galleryGap;
     return IS_WIDE_SCREEN
       ? (effectiveWidth - dimensions.width * 0.1) / numberOfColumns
       : effectiveWidth / numberOfColumns;
@@ -111,7 +105,7 @@ export const ImagesGalleryList = ({
 
   const calculateOffscreenDrawDistanceFromWindowSize = useCallback(
     () => Math.round(dimensions.height * offscreenDrawDistanceWindowSize),
-    [dimensions, offscreenDrawDistanceWindowSize],
+    [dimensions, offscreenDrawDistanceWindowSize]
   );
 
   /**
@@ -122,7 +116,7 @@ export const ImagesGalleryList = ({
       singleImageSize: calculateSingleImageSize(),
       listOffscreenDrawDistance: calculateOffscreenDrawDistanceFromWindowSize(),
     }),
-    [calculateSingleImageSize, calculateOffscreenDrawDistanceFromWindowSize],
+    [calculateSingleImageSize, calculateOffscreenDrawDistanceFromWindowSize]
   );
 
   const Image = ImageComponent;
@@ -155,32 +149,16 @@ export const ImagesGalleryList = ({
     }
 
     return null;
-  }, [
-    shouldShowNoPhotosMessage,
-    shouldShowLoadingSkeletons,
-    properties,
-    numberOfColumns,
-  ]);
+  }, [shouldShowNoPhotosMessage, shouldShowLoadingSkeletons, properties, numberOfColumns]);
 
   /**
    * Helper components - list render items
    */
   const renderItem = useCallback(
-    ({
-      item,
-      index,
-    }: {
-      item: (typeof cachedPhotos)[number];
-      index: number;
-    }) => {
-      return (
-        <Image
-          uri={item.cachedPhotoUri}
-          itemSize={properties.singleImageSize}
-        />
-      );
+    ({ item, index }: { item: (typeof cachedPhotos)[number]; index: number }) => {
+      return <Image uri={item.cachedPhotoUri} itemSize={properties.singleImageSize} />;
     },
-    [properties, settingsButtonHandle, Image, numberOfColumns],
+    [properties, settingsButtonHandle, Image, numberOfColumns]
   );
 
   const ItemSeparator = useCallback(() => {
@@ -189,7 +167,7 @@ export const ImagesGalleryList = ({
 
   const keyExtractor = useCallback(
     (item: (typeof cachedPhotos)[number]) => item.originalPhotoUri,
-    [],
+    []
   );
 
   const handleLoad = useCallback(() => {
@@ -197,17 +175,14 @@ export const ImagesGalleryList = ({
       SplashScreen.hideAsync();
     }, 100);
   }, []);
-  const handleScroll = useCallback(
-    (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-      scrollYOffset.set(e.nativeEvent.contentOffset.y);
-      if (e.nativeEvent.contentOffset.y > headerHeight - 100) {
-        setshowTopEdgeFade(true);
-      } else {
-        setshowTopEdgeFade(false);
-      }
-    },
-    [],
-  );
+  const handleScroll = useCallback((e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    scrollYOffset.set(e.nativeEvent.contentOffset.y);
+    if (e.nativeEvent.contentOffset.y > headerHeight - 100) {
+      setshowTopEdgeFade(true);
+    } else {
+      setshowTopEdgeFade(false);
+    }
+  }, []);
 
   const [selectedImage, setSelectedImage] = useState<
     | {
@@ -272,7 +247,7 @@ export const ImagesGalleryList = ({
       scrollYOffset.value,
       [0, headerHeight],
       [0, -headerHeight],
-      Extrapolation.CLAMP,
+      Extrapolation.CLAMP
     );
     return {
       transform: [{ translateY }],
@@ -283,9 +258,7 @@ export const ImagesGalleryList = ({
     "worklet";
     const animations = {
       opacity: withDelay(800, withTiming(1, { duration: 880 })),
-      transform: [
-        { translateY: withDelay(800, withTiming(0, { duration: 880 })) },
-      ],
+      transform: [{ translateY: withDelay(800, withTiming(0, { duration: 880 })) }],
     };
     const initialValues = {
       opacity: 0,
@@ -319,21 +292,17 @@ export const ImagesGalleryList = ({
    * We wrap the list inside an additional View to enable styling the list
    */
   return (
-    <View className="flex-1 bg-background">
-      <StyledAnimatedView
+    <View style={{ flex: 1 }} className="flex-1 bg-[#f9f9f9] dark:bg-background">
+      <Animated.View
         layout={LinearTransition}
         entering={FadeIn.duration(1000)}
         exiting={FadeOut.duration(1000)}
         style={[{ flex: 1, position: "relative" }]}
       >
-        {showTopEdgeFade ? (
-          <EdgeFade position="top" width={width} height={100} />
-        ) : (
-          <></>
-        )}
+        {showTopEdgeFade ? <EdgeFade position="top" width={width} height={100} /> : <></>}
         <GestureDetector gesture={gestureHandler}>
-          <StyledAnimatedView
-            className=""
+          <Animated.View
+            className="z-0"
             style={[
               {
                 height: headerHeight,
@@ -342,13 +311,12 @@ export const ImagesGalleryList = ({
                 top: 0,
                 left: 0,
                 right: 0,
-                zIndex: 9999,
                 overflow: "hidden",
               },
               HeaderAnimatedStyle,
             ]}
           >
-            <View className="relative flex-1 w-full flex items-center justify-center">
+            <View className="relative flex w-full flex-1 items-center justify-center">
               <EdgeFade height={200} width={width} position="top" />
               <EdgeFade
                 height={200}
@@ -371,18 +339,16 @@ export const ImagesGalleryList = ({
                 position="right"
               />
 
-              <StyledAnimatedView
-                className="z-50 text-center space-y-4 items-center flex flex-col"
+              <Animated.View
+                className="z-50 flex flex-col items-center space-y-4 text-center"
                 entering={textEntering}
               >
-                <Text className="text-base text-black/70 dark:text-white text-center">
-                  Recent
-                </Text>
+                <Text className="text-center text-base text-black/70 dark:text-white">Recent</Text>
 
-                <Text className="text-5xl md:text-7xl text-black/70 dark:text-white font-calendas italic text-center">
+                <Text className="font-calendas text-center text-5xl italic text-black/70 dark:text-white md:text-7xl">
                   favorites.
                 </Text>
-              </StyledAnimatedView>
+              </Animated.View>
 
               {imagesArr.map((props, idx) => (
                 <GalleryImage
@@ -393,9 +359,16 @@ export const ImagesGalleryList = ({
                 />
               ))}
             </View>
-          </StyledAnimatedView>
+          </Animated.View>
         </GestureDetector>
         <LegendList
+          style={{
+            flex: 1,
+            width: width,
+            height: height,
+            zIndex: 10,
+            marginTop: 10,
+          }}
           refScrollView={LegendListRef}
           bounces={false}
           key={mediaLibraryLoadingState} // Temporary solution to prevent empty list crash
@@ -423,31 +396,31 @@ export const ImagesGalleryList = ({
           showsVerticalScrollIndicator={false}
         />
 
-        <StyledBlurView
-          className="h-10 w-28 rounded-full absolute top-16 left-5 overflow-hidden flex items-center justify-center z-9999"
+        <BlurView
+          className="absolute left-5 top-16 z-50 flex h-10 w-28 items-center justify-center overflow-hidden rounded-full"
           intensity={60}
           tint={colorScheme === "light" ? "dark" : "light"}
         >
-          <Text className="text-base text-center text-white">Your photos</Text>
-        </StyledBlurView>
+          <Text className="text-center text-base text-white">Your photos</Text>
+        </BlurView>
 
-        <StyledBlurView
-          className="h-10 w-auto rounded-full absolute top-16 right-5 overflow-hidden flex items-end justify-center z-9999 px-2"
+        <BlurView
+          className="absolute right-5 top-16 z-50 flex h-10 w-auto items-end justify-center overflow-hidden rounded-full px-2"
           intensity={60}
           tint={colorScheme === "light" ? "dark" : "light"}
         >
           <View className="flex flex-row items-center justify-center gap-2">
-            <Text className="text-base text-center text-white">
+            <Text className="text-center text-base text-white">
               {`${cachedPhotos.length} items`}
             </Text>
             {Cache.isLoading(cachedPhotosLoadingState) && ( // Simplified conditional rendering
               <ActivityIndicator size={"small"} color={"#fff"} />
             )}
           </View>
-        </StyledBlurView>
+        </BlurView>
 
-        <StyledBlurView
-          className="h-10 w-10 rounded-full absolute top-16 right-40 overflow-hidden flex items-center justify-center z-9999"
+        <BlurView
+          className="absolute right-40 top-16 z-50 flex h-10 w-10 items-center justify-center overflow-hidden rounded-full"
           intensity={60}
           tint={colorScheme === "light" ? "dark" : "light"}
         >
@@ -457,10 +430,10 @@ export const ImagesGalleryList = ({
               ref={focusRefs["settings"]}
             />
           </Link>
-        </StyledBlurView>
+        </BlurView>
 
         <EdgeFade position="bottom" width={width} height={100} />
-      </StyledAnimatedView>
+      </Animated.View>
     </View>
   );
 };
@@ -487,7 +460,7 @@ const useBreathing = (x: number, y: number, depth: number) => {
         easing: Easing.inOut(Easing.ease),
       }),
       -1,
-      true, // reverse
+      true // reverse
     );
   }, []);
 
@@ -521,7 +494,7 @@ function GalleryImage({
       scrollYOffset.value,
       [0, headerHeight],
       [0, 50],
-      Extrapolation.CLAMP,
+      Extrapolation.CLAMP
     );
 
     return {
@@ -536,26 +509,20 @@ function GalleryImage({
 
       transform: [
         {
-          translateX: withSpring(
-            scrollFactor * randomX * depth + breath.value,
-            {
-              damping: 20,
-              stiffness: 100,
-              mass: 1,
-              overshootClamping: false,
-            },
-          ),
+          translateX: withSpring(scrollFactor * randomX * depth + breath.value, {
+            damping: 20,
+            stiffness: 100,
+            mass: 1,
+            overshootClamping: false,
+          }),
         },
         {
-          translateY: withSpring(
-            scrollFactor * randomY * depth + breath.value,
-            {
-              damping: 20,
-              stiffness: 100,
-              mass: 1,
-              overshootClamping: false,
-            },
-          ),
+          translateY: withSpring(scrollFactor * randomY * depth + breath.value, {
+            damping: 20,
+            stiffness: 100,
+            mass: 1,
+            overshootClamping: false,
+          }),
         },
       ],
     };
@@ -564,8 +531,8 @@ function GalleryImage({
     "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
 
   return (
-    <StyledAnimatedView style={[animatedStyle]}>
-      <StyledImage
+    <Animated.View style={[animatedStyle]}>
+      <Image
         className="rounded-xl"
         style={{
           backgroundColor: colorScheme === "dark" ? "#000" : "#d1d5db",
@@ -576,6 +543,6 @@ function GalleryImage({
         placeholder={blurhash}
         transition={1000}
       />
-    </StyledAnimatedView>
+    </Animated.View>
   );
 }

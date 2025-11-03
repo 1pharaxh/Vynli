@@ -1,4 +1,9 @@
 {
   "tabWidth": 2,
-  "useTabs": false
+  "useTabs": false,
+  "printWidth": 100,
+
+  "trailingComma": "es5",
+  "plugins": ["prettier-plugin-tailwindcss"],
+  "tailwindFunctions": ["cva"]
 }

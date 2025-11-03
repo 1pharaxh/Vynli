@@ -1,3 +1,5 @@
+import "../../global.css";
+
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { CachedPhotosProvider } from "@/providers/CachedPhotosProvider";
@@ -6,17 +8,16 @@ import { MediaLibraryPhotosProvider } from "@/providers/MediaLibraryPhotosProvid
 import { ScreenDimensionsProvider } from "@/providers/ScreenDimensionsProvider";
 import "@/utils/logger";
 import { FocusRefProvider } from "@/providers/FocusRefProvider";
-import "../../global.css";
 
-import {
-  DarkTheme,
-  DefaultTheme,
-  Theme,
-  ThemeProvider,
-} from "@react-navigation/native";
+import { ThemeProvider } from "@react-navigation/native";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { StatusBar } from "expo-status-bar";
+import { NAV_THEME } from "@/lib/theme";
+export {
+  // Catch any errors thrown by the Layout component.
+  ErrorBoundary,
+} from "expo-router";
 
 /**
  * We call `SplashScreen.hide` in the `index.tsx` file once the app layout is ready.
@@ -27,15 +28,8 @@ SplashScreen.setOptions({
   fade: true,
 });
 
-const LIGHT_THEME: Theme = {
-  ...DefaultTheme,
-};
-const DARK_THEME: Theme = {
-  ...DarkTheme,
-};
-
 export default function RootLayout() {
-  const { isDarkColorScheme } = useColorScheme();
+  const { colorScheme } = useColorScheme();
 
   return (
     <FocusRefProvider>
@@ -44,11 +38,8 @@ export default function RootLayout() {
           <MediaLibraryPhotosProvider>
             <CachedPhotosProvider>
               <GestureHandlerRootView style={{ flex: 1 }}>
-                <ThemeProvider
-                  value={isDarkColorScheme ? DARK_THEME : LIGHT_THEME}
-                >
-                  <StatusBar style={isDarkColorScheme ? "light" : "dark"} />
-
+                <ThemeProvider value={NAV_THEME[colorScheme ?? "light"]}>
+                  <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
                   <Stack screenOptions={{ headerShown: false }} />
                 </ThemeProvider>
               </GestureHandlerRootView>
