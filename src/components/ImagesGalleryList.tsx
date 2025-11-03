@@ -6,9 +6,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Dimensions as d } from "@/providers/ScreenDimensionsProvider";
 import { BlurView } from "expo-blur";
 import { styled } from "nativewind";
+import { LegendList } from "@legendapp/list";
 
 const StyledBlurView = styled(BlurView, { className: "style" });
-
+const StyledAnimatedView = styled(Animated.View, { className: "style" });
+const StyledImage = styled(Image, { className: "style" });
 import {
   Dimensions,
   NativeSyntheticEvent,
@@ -16,12 +18,12 @@ import {
   Text,
   View,
   ActivityIndicator,
+  ScrollView,
 } from "react-native";
 import { ImageComponent } from "./image/ImageComponent";
 import { NoPhotosMessage } from "./NoPhotosMessage";
 import { EmptyGalleryList } from "./EmptyGalleryList";
 import { Link, SplashScreen } from "expo-router";
-import { FlashList } from "@shopify/flash-list";
 import { getHandle, useFocusRefs } from "@/providers/FocusRefProvider";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
@@ -295,14 +297,30 @@ export const ImagesGalleryList = ({
     };
   };
 
+  const LegendListRef = useRef<ScrollView>(null);
+  const [initialScrollToTop, setInitialScrollToTop] = useState<boolean>(false);
+
+  useEffect(() => {
+    let timeout: NodeJS.Timeout;
+    if (LegendListRef.current && !initialScrollToTop) {
+      timeout = setTimeout(() => {
+        if (LegendListRef.current) {
+          LegendListRef.current.scrollTo({ x: 0, y: -0.4, animated: true });
+          setInitialScrollToTop(true);
+        }
+      }, 500);
+    }
+    () => clearTimeout(timeout);
+  }, [LegendListRef.current]);
+
   /**
    * Main list structure
    *
    * We wrap the list inside an additional View to enable styling the list
    */
   return (
-    <View className="flex-1">
-      <Animated.View
+    <View className="flex-1 bg-background">
+      <StyledAnimatedView
         layout={LinearTransition}
         entering={FadeIn.duration(1000)}
         exiting={FadeOut.duration(1000)}
@@ -314,7 +332,7 @@ export const ImagesGalleryList = ({
           <></>
         )}
         <GestureDetector gesture={gestureHandler}>
-          <Animated.View
+          <StyledAnimatedView
             className=""
             style={[
               {
@@ -353,7 +371,7 @@ export const ImagesGalleryList = ({
                 position="right"
               />
 
-              <Animated.View
+              <StyledAnimatedView
                 className="z-50 text-center space-y-4 items-center flex flex-col"
                 entering={textEntering}
               >
@@ -364,7 +382,7 @@ export const ImagesGalleryList = ({
                 <Text className="text-5xl md:text-7xl text-black/70 dark:text-white font-calendas italic text-center">
                   favorites.
                 </Text>
-              </Animated.View>
+              </StyledAnimatedView>
 
               {imagesArr.map((props, idx) => (
                 <GalleryImage
@@ -375,9 +393,10 @@ export const ImagesGalleryList = ({
                 />
               ))}
             </View>
-          </Animated.View>
+          </StyledAnimatedView>
         </GestureDetector>
-        <FlashList
+        <LegendList
+          refScrollView={LegendListRef}
           bounces={false}
           key={mediaLibraryLoadingState} // Temporary solution to prevent empty list crash
           data={cachedPhotos}
@@ -402,14 +421,6 @@ export const ImagesGalleryList = ({
           ListEmptyComponent={ListEmptyComponent}
           onLoad={handleLoad}
           showsVerticalScrollIndicator={false}
-          CellRendererComponent={(props) => {
-            const { style, children, ...rest } = props;
-            return (
-              <View style={style} {...rest}>
-                {children}
-              </View>
-            );
-          }}
         />
 
         <StyledBlurView
@@ -449,7 +460,7 @@ export const ImagesGalleryList = ({
         </StyledBlurView>
 
         <EdgeFade position="bottom" width={width} height={100} />
-      </Animated.View>
+      </StyledAnimatedView>
     </View>
   );
 };
@@ -519,14 +530,19 @@ function GalleryImage({
       left: x,
       width: width,
       height: height,
-      borderRadius: "12px",
+
+      borderRadius: 12, // Add this
+      overflow: "hidden", // Add this
 
       transform: [
         {
           translateX: withSpring(
             scrollFactor * randomX * depth + breath.value,
             {
-              damping: 10 + Math.abs(randomX) * depth * 5,
+              damping: 20,
+              stiffness: 100,
+              mass: 1,
+              overshootClamping: false,
             },
           ),
         },
@@ -534,7 +550,10 @@ function GalleryImage({
           translateY: withSpring(
             scrollFactor * randomY * depth + breath.value,
             {
-              damping: 10 + Math.abs(randomY) * depth * 5,
+              damping: 20,
+              stiffness: 100,
+              mass: 1,
+              overshootClamping: false,
             },
           ),
         },
@@ -545,11 +564,9 @@ function GalleryImage({
     "|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[";
 
   return (
-    <Animated.View
-      style={[animatedStyle]}
-      className="rounded-xl overflow-hidden"
-    >
-      <Image
+    <StyledAnimatedView style={[animatedStyle]}>
+      <StyledImage
+        className="rounded-xl"
         style={{
           backgroundColor: colorScheme === "dark" ? "#000" : "#d1d5db",
           flex: 1,
@@ -559,6 +576,6 @@ function GalleryImage({
         placeholder={blurhash}
         transition={1000}
       />
-    </Animated.View>
+    </StyledAnimatedView>
   );
 }
